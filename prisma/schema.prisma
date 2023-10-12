@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PROFESSOR
+  STUDENT
+}
+
+model Administrator {
+  id         String      @id @default(uuid())
+  name       String?     @db.VarChar(200)
+  password   String
+  email      String      @unique @db.VarChar(100)
+  role       Role        @default(ADMIN)
+  created_at DateTime    @default(now())
+  deleted_at DateTime?
+  updated_at DateTime    @updatedAt
+  professors Professor[]
+}
+
+model Professor {
+  id              String         @id @default(uuid())
+  name            String?        @db.VarChar(200)
+  email           String         @unique @db.VarChar(100)
+  password        String
+  role            Role           @default(PROFESSOR)
+  administratorId String
+  created_at      DateTime       @default(now())
+  deleted_at      DateTime?
+  updated_at      DateTime       @updatedAt
+  Administrator   Administrator? @relation(fields: [administratorId], references: [id])
+  classes         Class[]
+  exercises       Exercise[]
+  students        Student[]
+}
+
+model Student {
+  id          String          @id @default(uuid())
+  name        String?         @db.VarChar(200)
+  email       String          @unique @db.VarChar(100)
+  password    String
+  ra          String?
+  role        Role            @default(STUDENT)
+  professorId String?
+  classId     String?
+  Class       Class?          @relation(fields: [classId], references: [id])
+  Professor   Professor?      @relation(fields: [professorId], references: [id])
+  answers     StudentAnswer[]
+  created_at  DateTime        @default(now())
+  deleted_at  DateTime?
+  updated_at  DateTime        @updatedAt
+}
+
+model Class {
+  id          String     @id @default(uuid())
+  name        String     @db.VarChar(200)
+  professorId String?
+  Professor   Professor? @relation(fields: [professorId], references: [id])
+  students    Student[]
+  Exercise    Exercise[]
+  created_at  DateTime   @default(now())
+  deleted_at  DateTime?
+  updated_at  DateTime   @updatedAt
+}
+
+model Exercise {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(200)
+  description String?
+  dueDate     DateTime
+  html        String?
+  maxAttempts Int? 
+  professorId   String
+  Professor     Professor       @relation(fields: [professorId], references: [id])
+  classId       String
+  class         Class           @relation(fields: [classId], references: [id])
+  StudentAnswer StudentAnswer[]
+  created_at    DateTime        @default(now())
+  deleted_at    DateTime?
+  updated_at    DateTime        @updatedAt
+}
+
+model StudentAnswer {
+  id         String    @id @default(uuid())
+  answer     String?
+  attempts   Int?      @default(0)
+  studentId  String
+  exerciseId String
+  student    Student   @relation(fields: [studentId], references: [id])
+  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+  updated_at DateTime  @updatedAt
+}

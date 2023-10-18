@@ -21,6 +21,16 @@ export const createProfessor = async (req: Request, res: Response) => {
       },
     });
 
+    const checkAdmin = await prisma.administrator.findUnique({
+      where: {
+        id: administratorId,
+      },
+    });
+
+    if(!checkAdmin) {
+      return res.status(400).json({error : 'Não existe um administrador com esse ID'})
+    }
+
     if (existingAdmin || existingStudent) {
       return res
         .status(400)

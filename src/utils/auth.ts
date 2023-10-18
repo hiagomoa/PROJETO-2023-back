@@ -9,3 +9,8 @@ export const generateToken = (payload: {
 }) => {
   return jwt.sign(payload, secretKey, { expiresIn: "1h" });
 };
+
+
+export function generateRandomPassword() {
+  return Math.random().toString(36).slice(-8);
+}

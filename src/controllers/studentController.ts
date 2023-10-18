@@ -1,19 +1,32 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { generateRandomPassword } from "../utils/auth";
+import { sendEmail } from "../shared/providers/emailService/sendEmail";
+import { emailTemplateFolder } from "../server";
 
 const prisma = new PrismaClient();
 
 export const createStudent = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, professorId, classId, ra } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    let { name, email, password, professorId, classId, ra } = req.body;
 
-    const existingAdmin = await prisma.administrator.findFirst({
+    const checkIfAlreadyExistUser = await prisma.student.findFirst({
       where: {
-        email: email,
+        email: email, 
       },
     });
+
+    if(checkIfAlreadyExistUser) {
+      return res.status(400).json({error : "Já existe um Estudante com este email"})
+    }
+    const existingAdmin = await prisma.administrator.findFirst({
+      where: {
+        email: email, 
+      },
+    });
+
+    
 
     const existingProfessor = await prisma.professor.findFirst({
       where: {
@@ -21,17 +34,53 @@ export const createStudent = async (req: Request, res: Response) => {
       },
     });
 
+    const checkTeacher = await prisma.professor.findUnique({
+      where: {
+        id: professorId,
+      },
+    }); 
+  
+    if(!checkTeacher){
+      return res.status(400).json({error : "Não existe um professor com este ID"})
+    }
+
+    const checkClass = await prisma.class.findUnique({
+      where: {
+        id: classId,
+      },
+    }); 
+
+    if(!checkClass){
+      return res.status(400).json({error : "Não existe uma Class com este ID"})
+    }
+    
     if (existingAdmin || existingProfessor) {
       return res.status(400).json({
         error: "Este e-mail já está em uso por um administrador ou professor.",
       });
     }
+    if(!password){
+      password = generateRandomPassword()
+      sendEmail({
+        body: {
+          userName: name,
+          password,
+        },
+        emailTemplatePath: `${emailTemplateFolder}/create-password-template.hbs`,
+        from: process.env.EMAIL_FROM as string,
+        subject: 'Nova Password',
+        to: email
+      })
+      password = await bcrypt.hash(password, 10);
+    }else {
+      password = await bcrypt.hash(password, 10);
 
+    }
     const createdStudent = await prisma.student.create({
       data: {
         name,
         email,
-        password: hashedPassword,
+        password,
         ra,
         professorId,
         classId,

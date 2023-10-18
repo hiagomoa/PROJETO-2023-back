@@ -7,6 +7,17 @@ export const createClass = async (req: Request, res: Response) => {
   try {
     const { name, professorId } = req.body;
 
+    const checkTeacher = await prisma.professor.findUnique({
+      where: {
+        id: professorId,
+      },
+    });
+
+    if(!checkTeacher) {
+      return res.status(400).json({error: "Não existe um professor com esse ID"})
+    }
+
+
     const createdClass = await prisma.class.create({
       data: {
         name,

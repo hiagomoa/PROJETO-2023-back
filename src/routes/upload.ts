@@ -64,10 +64,13 @@ router.post("/", upload.array("file"), async (req, res) => {
           idProfessor: getExercise.professorId,
           idAluno: studentId,
         });
-        
+
         await queueRedis.set("STUDENT_EXERCISE_CORRECTION", dataToSend);
 
         if (findOne) {
+          if((findOne.attempts || 0) > (getExercise.maxAttempts || 0)) {
+            return res.status(400).json({error : "Quantidade maxima excedida"})
+          }
           return await prisma.studentAnswer.update({
             where: { id: findOne.id },
             data: {

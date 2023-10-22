@@ -18,7 +18,7 @@ export const emailTemplateFolder = resolve('public', 'templates');
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit : '50mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 

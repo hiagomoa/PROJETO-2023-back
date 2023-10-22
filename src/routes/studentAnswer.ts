@@ -5,11 +5,13 @@ import {
   getStudentAnswerById,
   listStudentAnswers,
   updateStudentAnswer,
+  getAnswerAutPut,
 } from "../controllers/studentAnswerController";
 
 const router = express.Router();
 
 router.post("/", createStudentAnswer);
+router.post("/out-put", getAnswerAutPut);
 router.get("/:id", getStudentAnswerById);
 router.get("/", listStudentAnswers);
 router.put("/:id", updateStudentAnswer);

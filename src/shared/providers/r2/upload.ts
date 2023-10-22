@@ -17,7 +17,7 @@ export class S3StorageProvider  {
     });
   }
 
-  async save(file: string): Promise<void> {
+  async save(file: string): Promise<string> {
     const fileOriginalName = resolve(`${tmpFolder}`, file);
 
     const fileContent = await fs.promises.readFile(fileOriginalName);
@@ -45,9 +45,11 @@ export class S3StorageProvider  {
       await fs.promises.stat(fileOriginalName);
     } catch (error: any) {
       console.log(error.message)
-      return;
+      return file;
     }
     await fs.promises.unlink(fileOriginalName);
+
+    return file
   }
 
   async delete(file: string): Promise<void> {

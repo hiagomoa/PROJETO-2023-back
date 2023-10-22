@@ -23,6 +23,27 @@ export const createStudentAnswer = async (req: Request, res: Response) => {
   }
 };
 
+export const getAnswerAutPut  = async (req: Request, res: Response) => {
+  try {
+    const {studentId, exerciseId} = req.body
+
+    const studentAnswer = await prisma.alunoItensInOut.findFirst({
+      where: { studentId,  exerciseId},
+    });
+
+    if (!studentAnswer) {
+      return res
+        .status(404)
+        .json({ error: "Resposta do estudante não encontrada." });
+    }
+
+    return res.status(200).json(studentAnswer);
+  } catch (error) {
+    console.error("Erro ao buscar a resposta do estudante:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
 export const getStudentAnswerById = async (req: Request, res: Response) => {
   try {
     const studentAnswerId = req.params.id;

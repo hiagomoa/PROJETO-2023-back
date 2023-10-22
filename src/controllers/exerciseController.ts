@@ -34,6 +34,31 @@ export const createExercise = async (req: Request, res: Response) => {
   }
 };
 
+export async  function  getByUsers(req: Request, res: Response) {
+const exerciseId = req.params.id 
+
+const studentAnswers : any =  await prisma.studentAnswer.findMany({where : {
+  exerciseId : String(exerciseId)
+},
+include : {
+  student : true,
+},
+
+})
+
+const result = await Promise.all(studentAnswers.map(async (i: any) => {
+  const inOut = await  prisma.alunoItensInOut.count({where : {
+    exerciseId : String(exerciseId),
+    studentId : String(i.studentId),
+    answer : 'OK'
+  }})
+  i.totalAnswersOk = inOut
+  return i
+}))
+
+return res.json(result)
+}
+
 export const getExerciseById = async (req: Request, res: Response) => {
   try {
     const exerciseId = req.params.id;
@@ -45,8 +70,20 @@ export const getExerciseById = async (req: Request, res: Response) => {
     if (!exercise) {
       return res.status(404).json({ error: "Exercício não encontrado." });
     }
+   
+      const getClass = await prisma.class.findUnique({ where: {
+        id: exercise.classId,
+      },})
 
-    return res.status(200).json(exercise);
+
+      const result = {
+       ... exercise,
+       className :  getClass?.name || ''
+      }
+   
+ 
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Erro ao buscar o exercício pelo ID:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
@@ -92,8 +129,8 @@ export const listExercises = async (req: Request, res: Response) => {
     if (classId) {
       filter.classId = classId;
     }
-
-    const data = await prisma.exercise.findMany({
+   
+    let data : any = await prisma.exercise.findMany({
       where: filter,
       orderBy: {
         updated_at: "desc",
@@ -101,6 +138,22 @@ export const listExercises = async (req: Request, res: Response) => {
       skip,
       take: itemsPerPage,
     });
+
+    if(data.length) {
+       const getClass = await Promise.all(data.map(async (i : any) => {
+        const getClass = await prisma.class.findUnique({ where: {
+          id: i.classId,
+        },})
+
+        return {
+          ...i, className : getClass?.name || ''
+        }
+      }))
+     data = getClass
+      
+
+   
+    }
 
     const total = await prisma.exercise.count({
       where: filter,
@@ -119,7 +172,7 @@ export const updateExercise = async (req: Request, res: Response) => {
     const exerciseId = req.params.id;
     const { name, description, dueDate, html, professorId, classId } = req.body;
 
-    const updatedExercise = await prisma.exercise.update({
+    let updatedExercise : any = await prisma.exercise.update({
       where: { id: exerciseId, deleted_at: null },
       data: {
         name,
@@ -130,6 +183,19 @@ export const updateExercise = async (req: Request, res: Response) => {
         classId,
       },
     });
+
+    if(updatedExercise) {
+      const getClass = await prisma.class.findUnique({ where: {
+        id: String(updatedExercise.classId),
+      },})
+  
+      updatedExercise = {
+       ... updatedExercise,
+       className :  getClass?.name || ''
+      }
+    }
+   
+ 
 
     return res.status(200).json(updatedExercise);
   } catch (error) {

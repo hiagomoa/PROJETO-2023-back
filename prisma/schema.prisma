@@ -95,7 +95,25 @@ model StudentAnswer {
   exerciseId String
   student    Student   @relation(fields: [studentId], references: [id])
   exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+  alunoItensInOut AlunoItensInOut   @relation(fields: [studentId], references: [id])
   created_at DateTime  @default(now())
   deleted_at DateTime?
   updated_at DateTime  @updatedAt
 }
+
+model ExerciseCorrection {
+  id         String    @id @default(uuid())
+  inputFile     String?
+  outputFile     String?
+  exerciseId String
+}
+
+model AlunoItensInOut {
+  id         String    @id @default(uuid())
+  studentId  String  
+  exerciseId String
+  StudentAnswer StudentAnswer[]
+  testNumber  String
+  answer String
+}
+

@@ -4,11 +4,13 @@ const router = express.Router();
 import multerConfig from "../config/upload";
 import { S3StorageProvider } from "../shared/providers/r2/upload";
 import { PrismaClient } from "@prisma/client";
+import { RedisService } from "../shared/providers/redis";
 const storageService = new S3StorageProvider();
 const upload = multer({
   storage: multerConfig.storage,
 });
 const prisma = new PrismaClient();
+const queueRedis = new RedisService();
 
 router.post("/", upload.array("file"), async (req, res) => {
   const { files } = req;
@@ -39,12 +41,31 @@ router.post("/", upload.array("file"), async (req, res) => {
       try {
         const exerciseId = req.query.exerciseId as string;
         const studentId = req.query.studentId as string;
+
+        const getExercise = await prisma.exercise.findUnique({
+          where: {
+            id: String(exerciseId),
+          },
+        });
+
+        if (!getExercise) {
+          return res.status(400).json({ error: "Exercise not found" });
+        }
+
         const findOne = await prisma.studentAnswer.findFirst({
           where: {
             exerciseId: String(exerciseId),
             studentId: String(studentId),
           },
         });
+        // send to queue
+        const dataToSend = JSON.stringify({
+          idExercicio: exerciseId,
+          idProfessor: getExercise.professorId,
+          idAluno: studentId,
+        });
+        
+        await queueRedis.set("STUDENT_EXERCISE_CORRECTION", dataToSend);
 
         if (findOne) {
           return await prisma.studentAnswer.update({

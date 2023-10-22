@@ -27,7 +27,7 @@ export const getAnswerAutPut  = async (req: Request, res: Response) => {
   try {
     const {studentId, exerciseId} = req.body
 
-    const studentAnswer = await prisma.alunoItensInOut.findFirst({
+    const studentAnswer = await prisma.alunoItensInOut.findMany({
       where: { studentId,  exerciseId},
     });
 

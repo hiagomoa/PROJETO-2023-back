@@ -52,7 +52,12 @@ const result = await Promise.all(studentAnswers.map(async (i: any) => {
     studentId : String(i.studentId),
     answer : 'OK'
   }})
-  i.totalAnswersOk = inOut
+  const list_inOut = await  prisma.alunoItensInOut.findMany({where : {
+    exerciseId : String(exerciseId),
+    studentId : String(i.studentId),
+  }})
+  i.totalAnswersOk = inOut;
+  i.list_inOut = list_inOut;
   return i
 }))
 

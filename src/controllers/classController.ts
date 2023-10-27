@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
@@ -13,10 +13,11 @@ export const createClass = async (req: Request, res: Response) => {
       },
     });
 
-    if(!checkTeacher) {
-      return res.status(400).json({error: "Não existe um professor com esse ID"})
+    if (!checkTeacher) {
+      return res
+        .status(400)
+        .json({ error: "Não existe um professor com esse ID" });
     }
-
 
     const createdClass = await prisma.class.create({
       data: {
@@ -38,6 +39,9 @@ export const getClassById = async (req: Request, res: Response) => {
 
     const classItem = await prisma.class.findUnique({
       where: { id: classId, deleted_at: null },
+      include: {
+        students: true,
+      },
     });
 
     if (!classItem) {
@@ -80,7 +84,7 @@ export const listClasses = async (req: Request, res: Response) => {
           id: String(userId),
         },
       });
-      
+
       filter = {
         ...filter,
         id: String(student?.classId),

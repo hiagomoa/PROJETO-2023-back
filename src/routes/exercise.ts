@@ -2,10 +2,10 @@ import express from "express";
 import {
   createExercise,
   deleteExercise,
+  getByUsers,
   getExerciseById,
   listExercises,
   updateExercise,
-  getByUsers,
 } from "../controllers/exerciseController";
 
 const router = express.Router();

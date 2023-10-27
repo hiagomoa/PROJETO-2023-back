@@ -1,18 +1,18 @@
-import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
 export const createStudentAnswer = async (req: Request, res: Response) => {
   try {
-    const { studentId, exerciseId, answer, attempts} = req.body;
+    const { studentId, exerciseId, answer, attempts } = req.body;
 
     const createdStudentAnswer = await prisma.studentAnswer.create({
       data: {
         studentId,
         exerciseId,
         answer,
-        attempts
+        attempts,
       },
     });
 
@@ -23,12 +23,12 @@ export const createStudentAnswer = async (req: Request, res: Response) => {
   }
 };
 
-export const getAnswerAutPut  = async (req: Request, res: Response) => {
+export const getAnswerAutPut = async (req: Request, res: Response) => {
   try {
-    const {studentId, exerciseId} = req.body
+    const { studentId, exerciseId } = req.body;
 
     const studentAnswer = await prisma.alunoItensInOut.findMany({
-      where: { studentId,  exerciseId},
+      where: { studentId, exerciseId },
     });
 
     if (!studentAnswer) {
@@ -42,7 +42,7 @@ export const getAnswerAutPut  = async (req: Request, res: Response) => {
     console.error("Erro ao buscar a resposta do estudante:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
   }
-}
+};
 
 export const getStudentAnswerById = async (req: Request, res: Response) => {
   try {
@@ -68,6 +68,26 @@ export const getStudentAnswerById = async (req: Request, res: Response) => {
 export const listStudentAnswers = async (req: Request, res: Response) => {
   try {
     const studentAnswers = await prisma.studentAnswer.findMany();
+
+    return res.status(200).json(studentAnswers);
+  } catch (error) {
+    console.error("Erro ao listar as respostas dos estudantes:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+};
+
+export const listStudentAnswersByExercise = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const studentAnswers = await prisma.studentAnswer.findMany({
+      where: { exerciseId: req.params.id },
+    });
+
+    if (!studentAnswers) {
+      return res.status(404).json({ error: "Respostas não encontradas." });
+    }
 
     return res.status(200).json(studentAnswers);
   } catch (error) {

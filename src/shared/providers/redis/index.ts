@@ -1,23 +1,20 @@
-import Redis from "ioredis"
-import {promisify} from 'util'
+import Redis from "ioredis";
+import { promisify } from "util";
 
 export class RedisService {
   private redisClient: Redis;
   constructor() {
     this.redisClient = new Redis(process.env.REDIS_URL as string);
 
-    this.redisClient.on('ready', () => {
-      console.debug('redis is connected');
+    this.redisClient.on("ready", () => {
+      console.debug("redis is connected");
     });
   }
-  async set(
-    key: string,
-    value: string,
-  ): Promise<any> {
+  async set(key: string, value: string): Promise<any> {
     const syncRedisSet = await promisify(this.redisClient.set).bind(
-      this.redisClient,
+      this.redisClient
     );
-  
+
     return syncRedisSet(key, value);
   }
   async get(value: string): Promise<any> {

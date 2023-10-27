@@ -71,12 +71,12 @@ model Class {
 }
 
 model Exercise {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(200)
-  description String?
-  dueDate     DateTime
-  html        String?
-  maxAttempts Int? 
+  id            String          @id @default(uuid())
+  name          String          @db.VarChar(200)
+  description   String?
+  dueDate       DateTime
+  html          String?
+  maxAttempts   Int?
   professorId   String
   Professor     Professor       @relation(fields: [professorId], references: [id])
   classId       String
@@ -88,32 +88,32 @@ model Exercise {
 }
 
 model StudentAnswer {
-  id         String    @id @default(uuid())
-  answer     String?
-  attempts   Int?      @default(0)
-  studentId  String
-  exerciseId String
-  student    Student   @relation(fields: [studentId], references: [id])
-  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
-  alunoItensInOut AlunoItensInOut   @relation(fields: [studentId], references: [id])
-  created_at DateTime  @default(now())
-  deleted_at DateTime?
-  updated_at DateTime  @updatedAt
+  id                String           @id @default(uuid())
+  answer            String?
+  attempts          Int?             @default(0)
+  exerciseId        String
+  student           Student          @relation(fields: [studentId], references: [id])
+  studentId         String
+  exercise          Exercise         @relation(fields: [exerciseId], references: [id])
+  created_at        DateTime         @default(now())
+  deleted_at        DateTime?
+  updated_at        DateTime         @updatedAt
+  AlunoItensInOut   AlunoItensInOut? @relation(fields: [alunoItensInOutId], references: [id])
+  alunoItensInOutId String?
 }
 
 model ExerciseCorrection {
-  id         String    @id @default(uuid())
-  inputFile     String?
-  outputFile     String?
+  id         String  @id @default(uuid())
+  inputFile  String?
+  outputFile String?
   exerciseId String
 }
 
 model AlunoItensInOut {
-  id         String    @id @default(uuid())
-  studentId  String  
-  exerciseId String
+  id            String          @id @default(uuid())
+  studentId     String
+  exerciseId    String
   StudentAnswer StudentAnswer[]
-  testNumber  String
-  answer String
+  testNumber    String
+  answer        String
 }
-

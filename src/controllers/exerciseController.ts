@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
@@ -34,34 +34,40 @@ export const createExercise = async (req: Request, res: Response) => {
   }
 };
 
-export async  function  getByUsers(req: Request, res: Response) {
-const exerciseId = req.params.id 
+export async function getByUsers(req: Request, res: Response) {
+  const exerciseId = req.params.id;
 
-const studentAnswers : any =  await prisma.studentAnswer.findMany({where : {
-  exerciseId : String(exerciseId)
-},
-include : {
-  student : true,
-},
+  const studentAnswers: any = await prisma.studentAnswer.findMany({
+    where: {
+      exerciseId: String(exerciseId),
+    },
+    include: {
+      student: true,
+    },
+  });
 
-})
+  const result = await Promise.all(
+    studentAnswers.map(async (i: any) => {
+      const inOut = await prisma.alunoItensInOut.count({
+        where: {
+          exerciseId: String(exerciseId),
+          studentId: String(i.studentId),
+          answer: "OK",
+        },
+      });
+      const list_inOut = await prisma.alunoItensInOut.findMany({
+        where: {
+          exerciseId: String(exerciseId),
+          studentId: String(i.studentId),
+        },
+      });
+      i.totalAnswersOk = inOut;
+      i.list_inOut = list_inOut;
+      return i;
+    })
+  );
 
-const result = await Promise.all(studentAnswers.map(async (i: any) => {
-  const inOut = await  prisma.alunoItensInOut.count({where : {
-    exerciseId : String(exerciseId),
-    studentId : String(i.studentId),
-    answer : 'OK'
-  }})
-  const list_inOut = await  prisma.alunoItensInOut.findMany({where : {
-    exerciseId : String(exerciseId),
-    studentId : String(i.studentId),
-  }})
-  i.totalAnswersOk = inOut;
-  i.list_inOut = list_inOut;
-  return i
-}))
-
-return res.json(result)
+  return res.json(result);
 }
 
 export const getExerciseById = async (req: Request, res: Response) => {
@@ -75,18 +81,17 @@ export const getExerciseById = async (req: Request, res: Response) => {
     if (!exercise) {
       return res.status(404).json({ error: "Exercício não encontrado." });
     }
-   
-      const getClass = await prisma.class.findUnique({ where: {
+
+    const getClass = await prisma.class.findUnique({
+      where: {
         id: exercise.classId,
-      },})
+      },
+    });
 
-
-      const result = {
-       ... exercise,
-       className :  getClass?.name || ''
-      }
-   
- 
+    const result = {
+      ...exercise,
+      className: getClass?.name || "",
+    };
 
     return res.status(200).json(result);
   } catch (error) {
@@ -134,8 +139,8 @@ export const listExercises = async (req: Request, res: Response) => {
     if (classId) {
       filter.classId = classId;
     }
-   
-    let data : any = await prisma.exercise.findMany({
+
+    let data: any = await prisma.exercise.findMany({
       where: filter,
       orderBy: {
         updated_at: "desc",
@@ -144,20 +149,22 @@ export const listExercises = async (req: Request, res: Response) => {
       take: itemsPerPage,
     });
 
-    if(data.length) {
-       const getClass = await Promise.all(data.map(async (i : any) => {
-        const getClass = await prisma.class.findUnique({ where: {
-          id: i.classId,
-        },})
+    if (data.length) {
+      const getClass = await Promise.all(
+        data.map(async (i: any) => {
+          const getClass = await prisma.class.findUnique({
+            where: {
+              id: i.classId,
+            },
+          });
 
-        return {
-          ...i, className : getClass?.name || ''
-        }
-      }))
-     data = getClass
-      
-
-   
+          return {
+            ...i,
+            className: getClass?.name || "",
+          };
+        })
+      );
+      data = getClass;
     }
 
     const total = await prisma.exercise.count({
@@ -176,31 +183,32 @@ export const updateExercise = async (req: Request, res: Response) => {
   try {
     const exerciseId = req.params.id;
     const { name, description, dueDate, html, professorId, classId } = req.body;
+    console.log(req.body);
 
-    let updatedExercise : any = await prisma.exercise.update({
-      where: { id: exerciseId, deleted_at: null },
+    let updatedExercise: any = await prisma.exercise.update({
+      where: { id: exerciseId, AND: { deleted_at: null } },
       data: {
         name,
         description,
-        dueDate,
+        dueDate: new Date(dueDate),
         html,
         professorId,
         classId,
       },
     });
 
-    if(updatedExercise) {
-      const getClass = await prisma.class.findUnique({ where: {
-        id: String(updatedExercise.classId),
-      },})
-  
+    if (updatedExercise) {
+      const getClass = await prisma.class.findUnique({
+        where: {
+          id: String(updatedExercise.classId),
+        },
+      });
+
       updatedExercise = {
-       ... updatedExercise,
-       className :  getClass?.name || ''
-      }
+        ...updatedExercise,
+        className: getClass?.name || "",
+      };
     }
-   
- 
 
     return res.status(200).json(updatedExercise);
   } catch (error) {

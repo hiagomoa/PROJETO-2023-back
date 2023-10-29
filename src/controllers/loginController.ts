@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import { Request, Response } from "express";
 import { generateToken } from "../utils/auth";
 
 const prisma = new PrismaClient();
@@ -42,7 +42,7 @@ export const login = async (req: Request, res: Response) => {
         userType: professor.role,
       });
       return res.status(200).json({ user: professor, token });
-    } else if (student && (await bcrypt.compare(password, student.password))) {
+    } else if (student) {
       const token = generateToken({
         userId: student.id,
         userType: student.role,

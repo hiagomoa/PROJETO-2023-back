@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
 
@@ -13,10 +13,11 @@ export const createClass = async (req: Request, res: Response) => {
       },
     });
 
-    if(!checkTeacher) {
-      return res.status(400).json({error: "Não existe um professor com esse ID"})
+    if (!checkTeacher) {
+      return res
+        .status(400)
+        .json({ error: "Não existe um professor com esse ID" });
     }
-
 
     const createdClass = await prisma.class.create({
       data: {
@@ -38,6 +39,9 @@ export const getClassById = async (req: Request, res: Response) => {
 
     const classItem = await prisma.class.findUnique({
       where: { id: classId, deleted_at: null },
+      include: {
+        students: { where: { deleted_at: null } },
+      },
     });
 
     if (!classItem) {
@@ -80,7 +84,7 @@ export const listClasses = async (req: Request, res: Response) => {
           id: String(userId),
         },
       });
-      
+
       filter = {
         ...filter,
         id: String(student?.classId),
@@ -89,19 +93,34 @@ export const listClasses = async (req: Request, res: Response) => {
 
     const data = await prisma.class.findMany({
       where: filter,
+      include: { students: { where: { deleted_at: undefined } } },
       orderBy: {
         updated_at: "desc",
       },
       skip,
       take: itemsPerPage,
     });
+    console.log(data, "data");
+
+    const newData = data.map((item) => {
+      return {
+        ...item,
+        students: item.students.filter(
+          (student) => student.deleted_at === null
+        ),
+      };
+    });
+
+    console.log(newData, "newData");
 
     const total = await prisma.class.count({
       where: { deleted_at: null },
     });
 
     const totalPages = Math.ceil(total / itemsPerPage);
-    return res.status(200).json({ total, totalPages, currentPage: page, data });
+    return res
+      .status(200)
+      .json({ total, totalPages, currentPage: page, data: newData });
   } catch (error) {
     console.error("Erro ao listar as classes:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });

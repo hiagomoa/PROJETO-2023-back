@@ -1,10 +1,10 @@
+import { PrismaClient } from "@prisma/client";
 import express from "express";
 import multer from "multer";
-const router = express.Router();
 import multerConfig from "../config/upload";
 import { S3StorageProvider } from "../shared/providers/r2/upload";
-import { PrismaClient } from "@prisma/client";
 import { RedisService } from "../shared/providers/redis";
+const router = express.Router();
 const storageService = new S3StorageProvider();
 const upload = multer({
   storage: multerConfig.storage,
@@ -14,12 +14,13 @@ const queueRedis = new RedisService();
 
 router.post("/", upload.array("file"), async (req, res) => {
   const { files } = req;
-
+  console.log(files);
   const allFiles = files as any[];
   if (allFiles?.length) {
     const nameList = await Promise.all(
       allFiles.map(async (file, index) => {
         const name = await storageService.save(file.filename);
+        console.log(name);
         return name;
       })
     );
@@ -68,8 +69,10 @@ router.post("/", upload.array("file"), async (req, res) => {
         await queueRedis.set("STUDENT_EXERCISE_CORRECTION", dataToSend);
 
         if (findOne) {
-          if((findOne.attempts || 0) > (getExercise.maxAttempts || 0)) {
-            return res.status(400).json({error : "Quantidade maxima excedida"})
+          if ((findOne.attempts || 0) > (getExercise.maxAttempts || 0)) {
+            return res
+              .status(400)
+              .json({ error: "Quantidade maxima excedida" });
           }
           return await prisma.studentAnswer.update({
             where: { id: findOne.id },

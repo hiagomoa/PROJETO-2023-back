@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { generateRandomPassword } from "../utils/auth";
-import { sendEmail } from "../shared/providers/emailService/sendEmail";
+import { Request, Response } from "express";
 import { emailTemplateFolder } from "../server";
+import { sendEmail } from "../shared/providers/emailService/sendEmail";
+import { generateRandomPassword } from "../utils/auth";
 
 const prisma = new PrismaClient();
 
@@ -13,20 +13,21 @@ export const createStudent = async (req: Request, res: Response) => {
 
     const checkIfAlreadyExistUser = await prisma.student.findFirst({
       where: {
-        email: email, 
+        email: email,
+        classId: classId,
       },
     });
 
-    if(checkIfAlreadyExistUser) {
-      return res.status(400).json({error : "Já existe um Estudante com este email"})
+    if (checkIfAlreadyExistUser) {
+      return res
+        .status(400)
+        .json({ error: "Já existe um Estudante com este email nesta turma!" });
     }
     const existingAdmin = await prisma.administrator.findFirst({
       where: {
-        email: email, 
+        email: email,
       },
     });
-
-    
 
     const existingProfessor = await prisma.professor.findFirst({
       where: {
@@ -38,29 +39,33 @@ export const createStudent = async (req: Request, res: Response) => {
       where: {
         id: professorId,
       },
-    }); 
-  
-    if(!checkTeacher){
-      return res.status(400).json({error : "Não existe um professor com este ID"})
+    });
+
+    if (!checkTeacher) {
+      return res
+        .status(400)
+        .json({ error: "Não existe um professor com este ID" });
     }
 
     const checkClass = await prisma.class.findUnique({
       where: {
         id: classId,
       },
-    }); 
+    });
 
-    if(!checkClass){
-      return res.status(400).json({error : "Não existe uma Class com este ID"})
+    if (!checkClass) {
+      return res
+        .status(400)
+        .json({ error: "Não existe uma Class com este ID" });
     }
-    
+
     if (existingAdmin || existingProfessor) {
       return res.status(400).json({
         error: "Este e-mail já está em uso por um administrador ou professor.",
       });
     }
-    if(!password){
-      password = generateRandomPassword()
+    if (!password) {
+      password = generateRandomPassword();
       sendEmail({
         body: {
           userName: name,
@@ -68,13 +73,12 @@ export const createStudent = async (req: Request, res: Response) => {
         },
         emailTemplatePath: `${emailTemplateFolder}/create-password-template.hbs`,
         from: process.env.EMAIL_FROM as string,
-        subject: 'Nova Password',
-        to: email
-      })
+        subject: "Nova Password",
+        to: email,
+      });
       password = await bcrypt.hash(password, 10);
-    }else {
+    } else {
       password = await bcrypt.hash(password, 10);
-
     }
     const createdStudent = await prisma.student.create({
       data: {

@@ -6,7 +6,7 @@ export const generateToken = (payload: {
   userId: string;
   userType: string;
 }) => {
-  return jwt.sign(payload, secretKey, { expiresIn: "1h" });
+  return jwt.sign(payload, secretKey!, { expiresIn: "1h" });
 };
 
 export function generateRandomPassword() {

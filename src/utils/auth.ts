@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const secretKey =
-  "a832f6d4626e4e2c8cfe299d85d3a5b74eb1f68c5d6b2e9b527083d59ecb49f7";
+const secretKey = process.env.SECRET_KEY;
 
 export const generateToken = (payload: {
   userId: string;
@@ -9,7 +8,6 @@ export const generateToken = (payload: {
 }) => {
   return jwt.sign(payload, secretKey, { expiresIn: "1h" });
 };
-
 
 export function generateRandomPassword() {
   return Math.random().toString(36).slice(-8);

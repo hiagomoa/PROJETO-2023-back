@@ -1,18 +1,29 @@
-import express from "express";
-import {
-  createStudent,
-  deleteStudent,
-  getStudentById,
-  listStudents,
-  updateStudent,
-} from "../controllers/studentController";
+import { Router } from "express";
+import { StudentService } from "../data/services/student";
+import { prisma } from "../infra/databases/postgres";
+import { StudentRepo } from "../infra/repositories/student";
+import { StudentController } from "../presentation/controllers/studentController";
 
-const router = express.Router();
+export const StudentRoutes = Router();
 
-router.post("/", createStudent);
-router.get("/:id", getStudentById);
-router.get("/", listStudents);
-router.put("/:id", updateStudent);
-router.delete("/:id", deleteStudent);
+const repo = new StudentRepo(prisma);
+const service = new StudentService(repo);
+const controller = new StudentController(service);
 
-export default router;
+StudentRoutes.post("/", async (req, res) => await controller.create(req, res));
+StudentRoutes.get(
+  "/:id",
+  async (req, res) => await controller.getById(req, res)
+);
+StudentRoutes.get(
+  "/",
+  async (req, res) => await controller.listStudents(req, res)
+);
+StudentRoutes.put(
+  "/:id",
+  async (req, res) => await controller.updateStudent(req, res)
+);
+StudentRoutes.delete(
+  "/:id",
+  async (req, res) => await controller.deleteStudent(req, res)
+);

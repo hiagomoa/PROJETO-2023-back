@@ -1,18 +1,28 @@
-import express from "express";
-import {
-  createClass,
-  deleteClass,
-  getClassById,
-  listClasses,
-  updateClass,
-} from "../controllers/classController";
+import { Router } from "express";
+import { ClassService } from "../data/services/class";
+import { prisma } from "../infra/databases/postgres";
+import { ClassRepo } from "../infra/repositories/class";
+import { ClassController } from "../presentation/controllers/classController";
 
-const router = express.Router();
+export const ClassRoutes = Router();
 
-router.post("/", createClass);
-router.get("/:id", getClassById);
-router.get("/", listClasses);
-router.put("/:id", updateClass);
-router.delete("/:id", deleteClass);
+const repo = new ClassRepo(prisma);
 
-export default router;
+const service = new ClassService(repo);
+
+const controller = new ClassController(service);
+
+ClassRoutes.post("/", async (req, res) => await controller.create(req, res));
+ClassRoutes.get("/:id", async (req, res) => await controller.getById(req, res));
+ClassRoutes.get(
+  "/",
+  async (req, res) => await controller.listClasses(req, res)
+);
+ClassRoutes.put(
+  "/:id",
+  async (req, res) => await controller.updateClass(req, res)
+);
+ClassRoutes.delete(
+  "/:id",
+  async (req, res) => await controller.deleteClass(req, res)
+);

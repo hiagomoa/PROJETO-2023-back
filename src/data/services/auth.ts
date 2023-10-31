@@ -10,7 +10,7 @@ export class AuthService {
     const user = await this.repo.SignIn(email, password);
 
     const secret = process.env.JWT_SECRET;
-    const token = jwt.sign({}, "lucas", {
+    const token = jwt.sign({}, secret!, {
       subject: user.id,
       expiresIn: "1h",
     });
@@ -21,9 +21,9 @@ export class AuthService {
   async refresh(token: string): Promise<JWTResult> {
     const secret = process.env.JWT_SECRET;
     const dcdd = await this.validate(token);
-    console.log(dcdd, "dcdd");
+
     const user = await this.repo.Refresh(dcdd);
-    const newToken = jwt.sign({}, "lucas", {
+    const newToken = jwt.sign({}, secret!, {
       subject: user.id,
       expiresIn: "1h",
     });

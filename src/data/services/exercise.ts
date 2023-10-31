@@ -14,14 +14,17 @@ export class ExerciseService implements ExerciseUseCases {
     professorId: string;
     classId: string;
     maxAttempts: string | number;
-  }): Promise<void> {
+  }): Promise<string> {
     return await this.repo.create(exercise);
   }
   async getById(id: string): Promise<Exercise> {
     return await this.repo.getById(id);
   }
-  async listExercises(): Promise<Exercise[]> {
-    return await this.repo.listExercises();
+  async listExercises(data: {
+    id?: string;
+    role?: string;
+  }): Promise<Exercise[] | undefined> {
+    return await this.repo.listExercises(data);
   }
   async getByUsers(id: string): Promise<StudentAnswer[]> {
     return await this.repo.getByUsers(id);

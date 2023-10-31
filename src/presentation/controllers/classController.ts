@@ -29,7 +29,10 @@ export class ClassController {
   }
   async listClasses(req: Request, res: Response): Promise<Response<Class[]>> {
     try {
-      const svc = await this.service.listClasses();
+      console.log(req.query, "query");
+      const svc = await this.service.listClasses(
+        req.query as { id?: string; role?: string }
+      );
       return res.send(svc);
     } catch (err) {
       return res.status(400).send({ error: "Erro ao listar classes" });

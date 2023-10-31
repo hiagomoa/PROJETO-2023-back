@@ -78,7 +78,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           return await prisma.studentAnswer.update({
             where: { id: findOne.id },
             data: {
-              answer: `${process.env.HOST_URL}/upload?filename=${nameList[0]}`,
+              answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
               attempts: (findOne?.attempts || 0) + 1,
             },
           });
@@ -87,7 +87,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           data: {
             studentId,
             exerciseId,
-            answer: `${process.env.HOST_URL}/upload?filename=${nameList[0]}`,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
             attempts: 1,
           },
         };
@@ -95,7 +95,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           data: {
             studentId: studentId,
             exerciseId: exerciseId,
-            answer: `${process.env.HOST_URL}/upload?filename=${nameList[0]}`,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
             attempts: 1,
             created_at: new Date(),
             updated_at: new Date(),

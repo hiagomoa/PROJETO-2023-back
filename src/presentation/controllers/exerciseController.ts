@@ -27,7 +27,7 @@ export class ExerciseController {
         maxAttempts: Number(maxAttempts),
       });
 
-      return res.status(201).json(exercise);
+      return res.status(201).json({ id: exercise });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: "Erro ao criar exercício" });
@@ -50,8 +50,9 @@ export class ExerciseController {
     res: Response
   ): Promise<Response<Exercise[]>> {
     try {
-      console.log(req.body);
-      const svc = await this.service.listExercises();
+      const svc = await this.service.listExercises(
+        req.query as { id?: string; role?: string; classId?: string }
+      );
       return res.send(svc);
     } catch (err) {
       return res.status(400).send({ error: "Erro ao listar exercícios" });

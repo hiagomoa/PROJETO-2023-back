@@ -12,7 +12,7 @@ export class ExerciseRepo implements ExerciseRepository {
     maxAttempts: number | string;
     professorId: string;
     classId: string;
-  }): Promise<void> {
+  }): Promise<string> {
     const db = await this.db.exercise.create({
       data: {
         dueDate: exercise.dueDate,
@@ -28,39 +28,108 @@ export class ExerciseRepo implements ExerciseRepository {
     if (!db) {
       throw new Error("Erro ao criar exercicio");
     }
+
+    return db.id;
   }
+
   async getById(id: string): Promise<Exercise> {
-    const db = await this.db.exercise.findUnique({
-      where: { id },
+    const db = await this.db.exercise.findFirst({
+      where: { classId: id },
     });
     if (!db) {
       throw new Error("Exercicio não encontrado");
     }
     return db;
   }
-  async listExercises(): Promise<Exercise[]> {
-    const db = await this.db.exercise.findMany({
-      select: {
-        classId: true,
-        created_at: true,
-        deleted_at: true,
-        description: true,
-        dueDate: true,
-        html: true,
-        id: true,
-        maxAttempts: true,
-        name: true,
-        professorId: true,
-        StudentAnswer: true,
-        updated_at: true,
-        Professor: true,
-        class: true,
-      },
-    });
-    if (!db) {
-      throw new Error("Erro ao listar exercicios");
+
+  async listExercises(data: {
+    id?: string;
+    role?: string;
+    classId?: string;
+  }): Promise<Exercise[] | undefined> {
+    if (data.role === "PROFESSOR") {
+      const db = await this.db.exercise.findMany({
+        select: {
+          classId: true,
+          created_at: true,
+          deleted_at: true,
+          description: true,
+          dueDate: true,
+          html: true,
+          id: true,
+          maxAttempts: true,
+          name: true,
+          professorId: true,
+          StudentAnswer: true,
+          updated_at: true,
+          Professor: true,
+          class: true,
+        },
+        where: {
+          professorId: data.id,
+          deleted_at: null,
+          classId: data.classId,
+        },
+      });
+      if (db.length < 1) {
+        throw new Error("Erro ao listar ");
+      }
+      return db;
+    } else if (data.role === "STUDENT") {
+      const db = await this.db.exercise.findMany({
+        select: {
+          classId: true,
+          created_at: true,
+          deleted_at: true,
+          description: true,
+          dueDate: true,
+          html: true,
+          id: true,
+          maxAttempts: true,
+          name: true,
+          professorId: true,
+          StudentAnswer: true,
+          updated_at: true,
+          Professor: true,
+          class: true,
+        },
+        where: {
+          deleted_at: null,
+          classId: data.classId,
+        },
+      });
+
+      if (!db) {
+        throw new Error("Erro ao listar exercicios");
+      }
+
+      if (data.classId) {
+        const filter = db.filter((item) => item.classId === data.classId);
+
+        return filter;
+      }
+
+      const user = await this.db.student.findFirst({
+        where: { id: data.id },
+      });
+
+      if (!user) {
+        throw new Error("Erro ao listar exercicios");
+      }
+
+      const dbfilt = await this.db.student.findMany({
+        where: { email: user?.email },
+      });
+
+      const filter = db.filter((item) => {
+        const usr = dbfilt.filter((item2) => item2.classId === item.classId);
+        if (usr.length > 0) {
+          return item;
+        }
+        return null;
+      });
+      return filter;
     }
-    return db;
   }
   async getByUsers(id: string): Promise<StudentAnswer[]> {
     const db = await this.db.studentAnswer.findMany({
@@ -74,8 +143,6 @@ export class ExerciseRepo implements ExerciseRepository {
     return db;
   }
   async updateExercise(id: string, exercise: Exercise): Promise<void> {
-    console.log(exercise, "repo");
-    console.log(await this.db.exercise.findUnique({ where: { id } }));
     const db = await this.db.exercise.update({
       where: { id },
       data: {
@@ -88,8 +155,6 @@ export class ExerciseRepo implements ExerciseRepository {
         classId: exercise.classId,
       },
     });
-
-    console.log(db, "resultado");
 
     if (!db) {
       throw new Error("Erro ao atualizar exercicio");

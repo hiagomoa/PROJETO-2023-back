@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { emailTemplateFolder } from "../../server";
+import { sendEmail } from "../../shared/providers/emailService/sendEmail";
 import { AuthRepository, JWTResult } from "../contracts/repositories/auth";
 
 export class AuthService {
@@ -33,5 +35,37 @@ export class AuthService {
     const decoded = jwt.decode(token, { json: true, complete: true });
 
     return decoded?.payload.sub as string;
+  }
+
+  async forgotPassword(email: string) {
+    try {
+      const user = await this.repo.ForgotPassword(email);
+
+      await sendEmail({
+        body: {
+          email: user?.email,
+          password: user?.password,
+        },
+        emailTemplatePath: `${emailTemplateFolder}/create-password-template.hbs`,
+        from: process.env.EMAIL_FROM as string,
+        subject: "Nova Password",
+        to: email,
+      });
+    } catch (error) {
+      throw new Error(error?.message);
+    }
+  }
+
+  async changePassword(data: {
+    lastPassword: string;
+    newPassword: string;
+    confirmationPassword: string;
+    userID: string;
+  }) {
+    try {
+      await this.repo.ChangePassword(data);
+    } catch (error) {
+      throw new Error(error?.message);
+    }
   }
 }

@@ -10,8 +10,11 @@ export class ClassService implements ClassUseCases {
   async getById(id: string): Promise<ClassContract> {
     return await this.repo.getById(id);
   }
-  async listClasses(): Promise<ClassContract[]> {
-    return await this.repo.listClasses();
+  async listClasses(data: {
+    id: string;
+    role?: string;
+  }): Promise<ClassContract[]> {
+    return await this.repo.listClasses(data);
   }
   async updateClass(id: string, classs: ClassContract): Promise<void> {
     return await this.repo.updateClass(id, classs);

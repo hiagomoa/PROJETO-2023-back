@@ -17,9 +17,13 @@ export interface ExerciseRepository {
     maxAttempts: number | string;
     professorId: string;
     classId: string;
-  }) => Promise<void>;
+  }) => Promise<string>;
   getById: (id: string) => Promise<Exercise>;
-  listExercises: () => Promise<Exercise[]>;
+  listExercises: (data: {
+    id?: string;
+    role?: string;
+    classId?: string;
+  }) => Promise<Exercise[] | undefined>;
   getByUsers: (id: string) => Promise<StudentAnswer[]>;
   updateExercise: (id: string, exercise: Exercise) => Promise<void>;
   deleteExercise: (id: string) => Promise<void>;

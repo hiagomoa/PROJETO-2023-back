@@ -33,10 +33,42 @@ export class ClassRepo implements ClassRepository {
       deleted_at: db.deleted_at,
     };
   }
-  async listClasses(): Promise<Class[]> {
-    const db = await this.db.class.findMany({ include: { students: true } });
+  async listClasses(data: { id?: string; role?: string }): Promise<Class[]> {
+    const db = await this.db.class.findMany({
+      include: { students: true },
+      where: {
+        professorId: data.role === "PROFESSOR" ? data.id : undefined,
+
+        deleted_at: null,
+      },
+    });
     if (!db) {
       throw new Error("Erro ao listar classes");
+    }
+
+    if (data.role === "STUDENT") {
+      const usr = await this.db.student.findFirst({
+        where: {
+          id: data.id,
+        },
+      });
+
+      if (!usr) throw new Error("Usuário não encontrado");
+      const usrs = await this.db.student.findMany({
+        where: {
+          email: usr.email,
+        },
+      });
+
+      const filter = db.filter((classs) => {
+        const usrsf = usrs.filter((usr) => usr.classId === classs.id);
+
+        if (usrsf.length > 0) return classs;
+
+        return null;
+      });
+
+      return filter;
     }
     return db.map((classs) => ({
       id: classs.id,

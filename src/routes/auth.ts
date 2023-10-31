@@ -16,3 +16,11 @@ AuthRoutes.post(
   "/refresh",
   async (req, res) => await controller.refresh(req, res)
 );
+AuthRoutes.post(
+  "/forgot-password",
+  async (req, res) => await controller.forgotPassword(req, res)
+);
+
+AuthRoutes.post("/change-password", async (req, res) => {
+  await controller.changePassword(req, res);
+});

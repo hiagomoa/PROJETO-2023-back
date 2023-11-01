@@ -20,7 +20,7 @@ export async function sendEmail({ body, subject, emailTemplatePath, to, from }: 
 
   const access = {
     host: process.env.EMAIL_HOST,
-    port: 25,
+    port: 465,
     secure: false,
     auth: {
       user: process.env.EMAIL_USER,

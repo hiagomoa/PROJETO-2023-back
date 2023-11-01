@@ -10,7 +10,6 @@ export class AdminRepo implements AdminRepository {
     email: string,
     password: string
   ): Promise<AdminContract> {
-    console.log(name, email, password, "DB REPOS");
     const db = await this.db.administrator.create({
       data: {
         name,
@@ -36,7 +35,6 @@ export class AdminRepo implements AdminRepository {
     const db = await this.db.administrator.findFirst({
       where: { id: id },
     });
-    console.log(db?.id, "DB REPOS");
     if (!db?.id) {
       throw new Error("Administrador não encontradoo oooooooo");
     }

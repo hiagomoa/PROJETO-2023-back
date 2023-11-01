@@ -3,11 +3,12 @@ import { AuthService } from "../data/services/auth";
 import { prisma } from "../infra/databases/postgres";
 import { AuthRepo } from "../infra/repositories/auth";
 import { AuthController } from "../presentation/controllers/auth";
+import { ResendProvider } from "../shared/providers/emailService/resend";
 
 export const AuthRoutes = Router();
 const repo = new AuthRepo(prisma);
 
-const service = new AuthService(repo);
+const service = new AuthService(repo, ResendProvider);
 
 const controller = new AuthController(service);
 

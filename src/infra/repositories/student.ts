@@ -1,13 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { Student } from "../../domain/entities/student";
-import { emailTemplateFolder } from "../../server";
-import { sendEmail } from "../../shared/providers/emailService/sendEmail";
+import { ResendProviderContract } from "../../shared/providers/emailService/resend";
 import { generateRandomPassword } from "../../utils/auth";
 import { StudentRepository } from "./../../data/contracts/repositories/student";
 
 export class StudentRepo implements StudentRepository {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(
+    private readonly db: PrismaClient,
+    private readonly resend: ResendProviderContract
+  ) {}
   async create(student: {
     name: string;
     email: string;
@@ -65,18 +67,15 @@ export class StudentRepo implements StudentRepository {
         "Este e-mail já está em uso por um administrador ou professor."
       );
     }
-    if (!password) {
+    if (password === undefined || password === null) {
       password = generateRandomPassword();
-      sendEmail({
-        body: {
-          userName: name,
-          password,
-        },
-        emailTemplatePath: `${emailTemplateFolder}/create-password-template.hbs`,
-        from: process.env.EMAIL_FROM as string,
-        subject: "Nova Password",
-        to: email,
-      });
+
+      const data = await this.resend.sendNewPassword(email, name, password);
+
+      if (!data) {
+        throw new Error("Erro ao enviar email");
+      }
+
       password = await bcrypt.hash(password, 10);
     } else {
       password = await bcrypt.hash(password, 10);
@@ -98,6 +97,7 @@ export class StudentRepo implements StudentRepository {
     if (!db) {
       throw new Error("Erro ao criar estudante");
     }
+    return;
   }
   async getById(id: string): Promise<Student> {
     const db = await this.db.student.findUnique({

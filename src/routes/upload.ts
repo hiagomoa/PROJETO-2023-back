@@ -14,13 +14,11 @@ const queueRedis = new RedisService();
 
 router.post("/", upload.array("file"), async (req, res) => {
   const { files } = req;
-  console.log(files);
   const allFiles = files as any[];
   if (allFiles?.length) {
     const nameList = await Promise.all(
       allFiles.map(async (file, index) => {
         const name = await storageService.save(file.filename);
-        console.log(name);
         return name;
       })
     );
@@ -52,7 +50,6 @@ router.post("/", upload.array("file"), async (req, res) => {
         if (!getExercise) {
           return res.status(400).json({ error: "Exercise not found" });
         }
-        console.log(studentId, exerciseId);
 
         const findOne = await prisma.studentAnswer.findFirst({
           where: {

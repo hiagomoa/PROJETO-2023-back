@@ -1,17 +1,18 @@
 import jwt from "jsonwebtoken";
-import { emailTemplateFolder } from "../../server";
-import { sendEmail } from "../../shared/providers/emailService/sendEmail";
+import { ResendProviderContract } from "../../shared/providers/emailService/resend";
 import { AuthRepository, JWTResult } from "../contracts/repositories/auth";
 
 export class AuthService {
-  constructor(private readonly repo: AuthRepository) {}
+  constructor(
+    private readonly repo: AuthRepository,
+    private readonly resend: ResendProviderContract
+  ) {}
 
   async sign(email: string, password: string) {
     const user = await this.repo.SignIn(email, password);
-
     const secret = process.env.JWT_SECRET;
     const token = jwt.sign({}, secret!, {
-      subject: user.id,
+      subject: user?.id,
       expiresIn: "1h",
     });
 
@@ -37,20 +38,18 @@ export class AuthService {
     return decoded?.payload.sub as string;
   }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<void> {
     try {
       const user = await this.repo.ForgotPassword(email);
+      console.log;
 
-      await sendEmail({
-        body: {
-          email: user?.email,
-          password: user?.password,
-        },
-        emailTemplatePath: `${emailTemplateFolder}/create-password-template.hbs`,
-        from: process.env.EMAIL_FROM as string,
-        subject: "Nova Password",
-        to: email,
-      });
+      if (user) {
+        await this.resend.sendForgotPassword(
+          user.email,
+          user.userName,
+          user.password
+        );
+      }
     } catch (error) {
       // @ts-ignore
       throw new Error(error?.message);

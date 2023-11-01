@@ -27,8 +27,6 @@ export const login = async (req: Request, res: Response) => {
       },
     });
 
-    console.log(admin, "admin", professor, "professor", student, "student");
-
     if (admin && (await bcrypt.compare(password, admin.password))) {
       const token = generateToken({
         userId: admin.id,

@@ -1,20 +1,36 @@
-import express from "express";
-import {
-  createExercise,
-  deleteExercise,
-  getByUsers,
-  getExerciseById,
-  listExercises,
-  updateExercise,
-} from "../controllers/exerciseController";
+import { Router } from "express";
+import { ExerciseService } from "../data/services/exercise";
+import { prisma } from "../infra/databases/postgres";
+import { ExerciseRepo } from "../infra/repositories/exercise";
+import { ExerciseController } from "../presentation/controllers/exerciseController";
 
-const router = express.Router();
+export const ExercisesRoutes = Router();
 
-router.post("/", createExercise);
-router.get("/:id", getExerciseById);
-router.get("/", listExercises);
-router.get("/get-users-by-exc/:id", getByUsers);
-router.put("/:id", updateExercise);
-router.delete("/:id", deleteExercise);
+const repo = new ExerciseRepo(prisma);
+const service = new ExerciseService(repo);
+const controller = new ExerciseController(service);
 
-export default router;
+ExercisesRoutes.post(
+  "/",
+  async (req, res) => await controller.create(req, res)
+);
+ExercisesRoutes.get(
+  "/:id",
+  async (req, res) => await controller.getById(req, res)
+);
+ExercisesRoutes.get(
+  "/",
+  async (req, res) => await controller.listExercises(req, res)
+);
+ExercisesRoutes.get(
+  "/get-users-by-exc/:id",
+  async (req, res) => await controller.getByUsers(req, res)
+);
+ExercisesRoutes.put(
+  "/:id",
+  async (req, res) => await controller.updateExercise(req, res)
+);
+ExercisesRoutes.delete(
+  "/:id",
+  async (req, res) => await controller.deleteExercise(req, res)
+);

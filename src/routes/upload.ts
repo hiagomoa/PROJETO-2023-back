@@ -31,8 +31,8 @@ router.post("/", upload.array("file"), async (req, res) => {
       const entityId = req.query.entityId;
 
       const content: any = {
-        inputFile: `${process.env.HOST_URL}/upload?filename=${inputFile}`,
-        outputFile: `${process.env.HOST_URL}/upload?filename=${outputFile}`,
+        inputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${inputFile}`,
+        outputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${outputFile}`,
         exerciseId: entityId,
       };
       await prisma.exerciseCorrection.create({ data: content });
@@ -52,6 +52,7 @@ router.post("/", upload.array("file"), async (req, res) => {
         if (!getExercise) {
           return res.status(400).json({ error: "Exercise not found" });
         }
+        console.log(studentId, exerciseId);
 
         const findOne = await prisma.studentAnswer.findFirst({
           where: {
@@ -77,7 +78,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           return await prisma.studentAnswer.update({
             where: { id: findOne.id },
             data: {
-              answer: `${process.env.HOST_URL}/upload?filename=${nameList[0]}`,
+              answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
               attempts: (findOne?.attempts || 0) + 1,
             },
           });
@@ -86,12 +87,21 @@ router.post("/", upload.array("file"), async (req, res) => {
           data: {
             studentId,
             exerciseId,
-            answer: `${process.env.HOST_URL}/upload?filename=${nameList[0]}`,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
             attempts: 1,
           },
         };
-
-        await prisma.studentAnswer.create(myData);
+        await prisma.studentAnswer.create({
+          data: {
+            studentId: studentId,
+            exerciseId: exerciseId,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
+            attempts: 1,
+            created_at: new Date(),
+            updated_at: new Date(),
+            deleted_at: null,
+          },
+        });
       } catch (error: any) {
         console.log(error.message);
       }

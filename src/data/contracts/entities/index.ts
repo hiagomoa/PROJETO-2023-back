@@ -1,0 +1,13 @@
+import { Administrator } from "../../../domain/entities/admin";
+import { Class } from "../../../domain/entities/class";
+import { Exercise } from "../../../domain/entities/exercise";
+import { Student } from "../../../domain/entities/student";
+import { StudentAnswer } from "./../../../domain/entities/studentAnswer";
+import { Teacher } from "./../../../domain/entities/teacher";
+export type AdminContract = Administrator;
+export type ClassContract = Class;
+export type StudentContract = Student;
+export type ExerciseContract = Exercise;
+export type StudentAnswerContract = StudentAnswer;
+export type TeacherContract = Teacher;
+export type RoleContract = "ADMIN" | "TEACHER" | "STUDENT";

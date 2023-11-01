@@ -3,32 +3,37 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import { resolve } from "path";
-import administratorRoutes from "./routes/administrator";
-import classRoutes from "./routes/class";
-import exerciseRoutes from "./routes/exercise";
+import { AdminRoutes } from "./routes/administrator";
+import { AuthRoutes } from "./routes/auth";
+import { ClassRoutes } from "./routes/class";
+import { ExercisesRoutes } from "./routes/exercise";
 import loginRoutes from "./routes/login";
-import professorRoutes from "./routes/professor";
-import studentRoutes from "./routes/student";
-import resultRoutes from "./routes/studentAnswer";
+import { TeacherRoutes } from "./routes/professor";
+import { StudentRoutes } from "./routes/student";
+import { StudentAnswerRoutes } from "./routes/studentAnswer";
 import upload from "./routes/upload";
 export const emailTemplateFolder = resolve("public", "templates");
 
 const app = express();
+// app.use(express.json());
 const port = process.env.PORT || 3001;
+const dburl = process.env.DATABASE_URL;
+console.log(dburl);
 console.log("url", process.env.REDIS_URL);
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 // Use suas rotas
-app.use("/admin", administratorRoutes);
-app.use("/prof", professorRoutes);
-app.use("/class", classRoutes);
-app.use("/student", studentRoutes);
-app.use("/exercise", exerciseRoutes);
-app.use("/answer", resultRoutes);
+app.use("/admin", AdminRoutes);
+app.use("/prof", TeacherRoutes);
+app.use("/class", ClassRoutes);
+app.use("/student", StudentRoutes);
+app.use("/exercise", ExercisesRoutes);
+app.use("/answer", StudentAnswerRoutes);
 app.use("/login", loginRoutes);
 app.use("/upload", upload);
+app.use("/auth", AuthRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor Express em execução na porta ${port}`);

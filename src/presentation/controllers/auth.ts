@@ -39,6 +39,7 @@ export class AuthController {
       return res.status(200).json({ message: "Email enviado com sucesso." });
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+      // @ts-ignore
       return res.status(500).json({ error: error?.message });
     }
   }
@@ -60,6 +61,7 @@ export class AuthController {
       return res.status(200).json({ message: "Senha alterada com sucesso." });
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+      // @ts-ignore
       return res.status(500).json({ error: error?.message });
     }
   }

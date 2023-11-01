@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 import { TeacherRepository } from "../../data/contracts/repositories/teacher";
 import { Teacher } from "../../domain/entities/teacher";
 
@@ -40,9 +41,14 @@ export class TeacherRepo implements TeacherRepository {
     id: string,
     teacher: { name?: string; password?: string }
   ): Promise<void> {
+    const hash = await bcrypt.hash(teacher.password!, 10);
+    const data = {
+      name: teacher.name,
+      password: hash,
+    };
     const db = await this.db.professor.update({
       where: { id },
-      data: teacher,
+      data: data,
     });
 
     if (!db) {

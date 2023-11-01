@@ -2,14 +2,6 @@ import { AlunosItensInOut } from "../../../domain/entities/alunoItensInOut";
 import { StudentAnswer } from "../../../domain/entities/studentAnswer";
 
 export interface StudentAnswerRepository {
-  // create student answer
-  // get student answer by id
-  // getanswerout put
-  // get list student answers
-  // get list student answers by exercise
-  // put update student answer
-  // delete student answer
-
   create: (studentAnswer: {
     studentId: string;
     exerciseId: string;

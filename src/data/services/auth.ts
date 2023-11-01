@@ -52,6 +52,7 @@ export class AuthService {
         to: email,
       });
     } catch (error) {
+      // @ts-ignore
       throw new Error(error?.message);
     }
   }
@@ -65,6 +66,7 @@ export class AuthService {
     try {
       await this.repo.ChangePassword(data);
     } catch (error) {
+      //@ts-ignore
       throw new Error(error?.message);
     }
   }

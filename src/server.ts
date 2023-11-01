@@ -7,7 +7,6 @@ import { AdminRoutes } from "./routes/administrator";
 import { AuthRoutes } from "./routes/auth";
 import { ClassRoutes } from "./routes/class";
 import { ExercisesRoutes } from "./routes/exercise";
-import loginRoutes from "./routes/login";
 import { TeacherRoutes } from "./routes/professor";
 import { StudentRoutes } from "./routes/student";
 import { StudentAnswerRoutes } from "./routes/studentAnswer";
@@ -31,7 +30,6 @@ app.use("/class", ClassRoutes);
 app.use("/student", StudentRoutes);
 app.use("/exercise", ExercisesRoutes);
 app.use("/answer", StudentAnswerRoutes);
-app.use("/login", loginRoutes);
 app.use("/upload", upload);
 app.use("/auth", AuthRoutes);
 

@@ -20,7 +20,7 @@ export async function sendEmail({ body, subject, emailTemplatePath, to, from }: 
 
   const access = {
     host: process.env.EMAIL_HOST,
-    port: 465,
+    port: 587,
     secure: false,
     auth: {
       user: process.env.EMAIL_USER,
@@ -41,7 +41,9 @@ export async function sendEmail({ body, subject, emailTemplatePath, to, from }: 
     await transporter.sendMail(emailOptions);
     console.log('email sended')
   } catch (error) {
+    console.log("ERROR EMAIL SEND, INIT")
     console.error(error);
+    console.log("ERROR EMAIL SEND, END")
   }
 }
 

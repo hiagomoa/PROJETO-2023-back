@@ -18,24 +18,51 @@ router.post("/", upload.array("file"), async (req, res) => {
   if (allFiles?.length) {
     const nameList = await Promise.all(
       allFiles.map(async (file, index) => {
-        const name = await storageService.save(file.filename);
+        const namee = req.query.name as string;
+        const name = await storageService.save(namee);
         return name;
       })
     );
+
     const entity = req.query.entity;
     if (entity == "exerciseTeacher") {
-      const inputFile = nameList.find((i) => i.includes("arq01"));
-      const outputFile = nameList.find((i) => !i.includes("arq01"));
-      const entityId = req.query.entityId;
+      nameList.map(async (name) => {
+        if (name.includes(".in")) {
+          const inputFile = req.query.name;
+          const entityId = req.query.entityId;
 
-      const content: any = {
-        inputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${inputFile}`,
-        outputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${outputFile}`,
-        exerciseId: entityId,
-      };
-      await prisma.exerciseCorrection.create({ data: content });
+          const content: any = {
+            inputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${inputFile}`,
+            exerciseId: entityId,
+          };
+          await prisma.exerciseCorrection.create({ data: content });
+        } else if (name.includes(".out")) {
+          const namee2 = req.query.name;
+          const corresponding = req.body.correspondingInFile!;
+
+          const content: any = {
+            outputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${namee2}`,
+          };
+          const find = await prisma.exerciseCorrection.findFirst({
+            where: {
+              inputFile: { contains: corresponding },
+            },
+          });
+          if (find?.id) {
+            await prisma.exerciseCorrection.update({
+              where: {
+                id: find.id,
+              },
+              data: {
+                outputFile: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${namee2}`,
+              },
+            });
+          }
+
+          // }
+        }
+      });
     }
-
     if (entity == "studentAnswer") {
       try {
         const exerciseId = req.query.exerciseId as string;
@@ -75,7 +102,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           return await prisma.studentAnswer.update({
             where: { id: findOne.id },
             data: {
-              answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
+              answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${nameList[0]}`,
               attempts: (findOne?.attempts || 0) + 1,
             },
           });
@@ -84,7 +111,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           data: {
             studentId,
             exerciseId,
-            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${nameList[0]}`,
             attempts: 1,
           },
         };
@@ -92,7 +119,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           data: {
             studentId: studentId,
             exerciseId: exerciseId,
-            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/upload?filename=${nameList[0]}`,
+            answer: `https://pub-b668eea891c54aa6910e596162b46f22.r2.dev/${nameList[0]}`,
             attempts: 1,
             created_at: new Date(),
             updated_at: new Date(),

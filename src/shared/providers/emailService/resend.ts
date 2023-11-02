@@ -20,7 +20,12 @@ export type ResendProviderContract = {
 };
 
 export class ResendExternalProvider implements ResendProviderContract {
-  constructor(private readonly resend: Resend) {}
+  private from;
+  constructor(private readonly resend: Resend) {
+    this.from = `Sistema de Correção de Exercícios <${
+      process.env.EMAIL_FROM as string
+    }>`;
+  }
 
   private generateTemplatePassword(userName: string, password: string): string {
     const emailTemplatePath = `${emailTemplateFolder}/create-password-template.hbs`;
@@ -42,7 +47,7 @@ export class ResendExternalProvider implements ResendProviderContract {
       const template = this.generateTemplatePassword(userName, password);
 
       await this.resend.emails.send({
-        from: "Sistema de Correção de Exercícios <delivered@hiagoserver.cloud>",
+        from: this.from,
         to: [to],
         subject: "Nova senha",
         html: template,
@@ -64,7 +69,7 @@ export class ResendExternalProvider implements ResendProviderContract {
       const template = this.generateTemplatePassword(userName, password);
 
       await this.resend.emails.send({
-        from: "Sistema de Correção de Exercícios <delivered@hiagoserver.cloud>",
+        from: this.from,
         to: [to],
         subject: "Recuperação de senha",
         html: template,

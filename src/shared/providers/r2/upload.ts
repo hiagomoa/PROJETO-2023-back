@@ -40,11 +40,9 @@ export class S3StorageProvider {
         return;
       });
 
-    console.log("upload completed");
     try {
       await fs.promises.stat(fileOriginalName);
     } catch (error: any) {
-      console.log(error.message);
       return file;
     }
     await fs.promises.unlink(fileOriginalName);

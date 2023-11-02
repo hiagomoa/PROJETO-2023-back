@@ -42,7 +42,7 @@ export class ResendExternalProvider implements ResendProviderContract {
       const template = this.generateTemplatePassword(userName, password);
 
       await this.resend.emails.send({
-        from: "Sistema de Correção de Exercícios <delivered@resend.dev>",
+        from: "Sistema de Correção de Exercícios <delivered@hiagoserver.cloud>",
         to: [to],
         subject: "Nova senha",
         html: template,
@@ -64,7 +64,7 @@ export class ResendExternalProvider implements ResendProviderContract {
       const template = this.generateTemplatePassword(userName, password);
 
       await this.resend.emails.send({
-        from: "Sistema de Correção de Exercícios <delivered@resend.dev>",
+        from: "Sistema de Correção de Exercícios <delivered@hiagoserver.cloud>",
         to: [to],
         subject: "Recuperação de senha",
         html: template,

@@ -7,6 +7,7 @@ import {
 import { Administrator } from "../../domain/entities/admin";
 import { Student } from "../../domain/entities/student";
 import { Teacher } from "../../domain/entities/teacher";
+import { generateRandomPassword } from "../../utils/auth";
 
 export class AuthRepo implements AuthRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -14,31 +15,39 @@ export class AuthRepo implements AuthRepository {
   async SignIn(email: string, password: string): Promise<any> {
     const student = await this.db.student.findFirst({
       where: { email: email },
-      include: {
-        answers: true,
-        Class: true,
-        Professor: true,
-      },
     });
 
     const teacher = await this.db.professor.findFirst({
       where: { email: email },
-      include: {
-        Administrator: true,
-      },
     });
 
     const admin = await this.db.administrator.findFirst({
       where: { email: email },
-      include: {
-        professors: true,
-      },
     });
 
-    if (student && student.password === password) return student as Student;
+    if (student && (await bcrypt.compare(password, student.password)))
+      return {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        password: "********",
+        deleted_at: student.deleted_at,
+        role: student.role,
+        created_at: student.created_at,
+        updated_at: student.updated_at,
+      };
 
     if (teacher && (await bcrypt.compare(password, teacher.password)))
-      return teacher as Teacher;
+      return {
+        id: teacher.id,
+        name: teacher.name,
+        email: teacher.email,
+        password: "********",
+        deleted_at: teacher.deleted_at,
+        role: teacher.role,
+        created_at: teacher.created_at,
+        updated_at: teacher.updated_at,
+      };
 
     if (admin && (await bcrypt.compare(password, admin.password)))
       return {
@@ -46,10 +55,13 @@ export class AuthRepo implements AuthRepository {
         name: admin.name,
         email: admin.email,
         password: "********",
+        deleted_at: admin.deleted_at,
         role: admin.role,
         created_at: admin.created_at,
         updated_at: admin.updated_at,
-      } as Administrator;
+      };
+
+    return;
   }
   async Refresh(userId: string): Promise<any> {
     const findStudent = await this.db.student.findFirst({
@@ -94,9 +106,68 @@ export class AuthRepo implements AuthRepository {
       where: { email: email },
     });
 
-    if (student) return { email: student.email, password: student.password };
-    if (teacher) return { email: teacher.email, password: teacher.password };
-    if (admin) return { email: admin.email, password: admin.password };
+    if (student && student.id) {
+      try {
+        const newPassword = generateRandomPassword();
+        const hash = await bcrypt.hash(newPassword, 10);
+        const student2 = await this.db.student.update({
+          where: { id: student.id },
+          data: {
+            password: hash,
+          },
+        });
+
+        return {
+          email: student2.email,
+          userName: student2.name ? student2.name : "",
+          password: newPassword,
+        };
+      } catch (err) {
+        throw new Error("Erro ao atualizar senha");
+      }
+    }
+
+    if (teacher && teacher.id) {
+      const newPassword = generateRandomPassword();
+      const hash = await bcrypt.hash(newPassword, 10);
+      try {
+        const teacher2 = await this.db.professor.update({
+          where: { id: teacher.id },
+          data: {
+            password: hash,
+          },
+        });
+
+        return {
+          email: teacher2.email,
+          userName: teacher2.name ? teacher2.name : "",
+          password: newPassword,
+        };
+      } catch (error) {
+        throw new Error("Erro ao atualizar senha");
+      }
+    }
+
+    if (admin && admin.id) {
+      const newPassword = generateRandomPassword();
+      const hash = await bcrypt.hash(newPassword, 10);
+      try {
+        const admin2 = await this.db.administrator.update({
+          where: { id: admin.id },
+          data: {
+            password: hash,
+          },
+        });
+
+        return {
+          email: admin2.email,
+          userName: admin2.name ? admin2.name : "",
+          password: newPassword,
+        };
+      } catch (error) {
+        throw new Error("Erro ao atualizar senha");
+      }
+    }
 
     if (!student && !teacher && !admin) throw new Error("Email não encontrado");
   }
@@ -135,9 +206,7 @@ export class AuthRepo implements AuthRepository {
           throw new Error("As senhas não conferem");
         }
       }
-    }
-
-    if (teacher) {
+    } else if (teacher?.id) {
       const password = await bcrypt.compare(
         data.lastPassword,
         teacher.password
@@ -153,9 +222,7 @@ export class AuthRepo implements AuthRepository {
           throw new Error("As senhas não conferem");
         }
       }
-    }
-
-    if (admin) {
+    } else if (admin?.id) {
       const password = await bcrypt.compare(data.lastPassword, admin.password);
       if (password) {
         if (data.newPassword === data.confirmationPassword) {

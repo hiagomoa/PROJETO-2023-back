@@ -64,8 +64,6 @@ export class TeacherController {
     try {
       const id = req.params.id;
 
-      console.log(id);
-
       await this.service.deleteTeacher(id);
 
       return res.send("Professor deletado com sucesso");

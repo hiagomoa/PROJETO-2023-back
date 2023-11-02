@@ -3,10 +3,11 @@ import { StudentService } from "../data/services/student";
 import { prisma } from "../infra/databases/postgres";
 import { StudentRepo } from "../infra/repositories/student";
 import { StudentController } from "../presentation/controllers/studentController";
+import { ResendProvider } from "../shared/providers/emailService/resend";
 
 export const StudentRoutes = Router();
 
-const repo = new StudentRepo(prisma);
+const repo = new StudentRepo(prisma, ResendProvider);
 const service = new StudentService(repo);
 const controller = new StudentController(service);
 

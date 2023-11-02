@@ -25,5 +25,6 @@ export type JWTResult = {
 
 export type ForgotPasswordContract = {
   email: string;
+  userName: string;
   password: string;
 };

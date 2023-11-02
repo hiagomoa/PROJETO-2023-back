@@ -29,7 +29,6 @@ export class ClassController {
   }
   async listClasses(req: Request, res: Response): Promise<Response<Class[]>> {
     try {
-      console.log(req.query, "query");
       const svc = await this.service.listClasses(
         req.query as { id?: string; role?: string }
       );

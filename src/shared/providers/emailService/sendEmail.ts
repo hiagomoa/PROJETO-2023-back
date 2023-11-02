@@ -1,22 +1,25 @@
-import fs from 'fs';
-import nodemailer from 'nodemailer';
-import handlebars from 'handlebars';
+import fs from "fs";
+import handlebars from "handlebars";
+import nodemailer from "nodemailer";
 interface ISendEmailProps {
   emailTemplatePath: string;
   body: Record<any, any>;
   from: string;
   to: string;
-  subject: string
+  subject: string;
 }
-export async function sendEmail({ body, subject, emailTemplatePath, to, from }: ISendEmailProps): Promise<void> {
-
-
-  const templateSource = fs.readFileSync(emailTemplatePath, 'utf8');
-
+export async function sendEmail({
+  body,
+  subject,
+  emailTemplatePath,
+  to,
+  from,
+}: ISendEmailProps): Promise<void> {
+  const templateSource = fs.readFileSync(emailTemplatePath, "utf8");
 
   const compiledTemplate = handlebars.compile(templateSource);
 
-  const renderedTemplate = compiledTemplate({ subject, ...body, });
+  const renderedTemplate = compiledTemplate({ subject, ...body });
 
   const access = {
     host: process.env.EMAIL_HOST,
@@ -26,9 +29,18 @@ export async function sendEmail({ body, subject, emailTemplatePath, to, from }: 
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-  }
+  };
 
-  const transporter = nodemailer.createTransport(access);
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: 25,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    connectionTimeout: 5000,
+  });
 
   const emailOptions = {
     from,
@@ -37,13 +49,9 @@ export async function sendEmail({ body, subject, emailTemplatePath, to, from }: 
     html: renderedTemplate,
   };
 
-  try {
-    await transporter.sendMail(emailOptions);
-    console.log('email sended')
-  } catch (error) {
-    console.log("ERROR EMAIL SEND, INIT")
-    console.error(error);
-    console.log("ERROR EMAIL SEND, END")
-  }
+  await transporter
+    .sendMail(emailOptions)
+    .then((r) => console.log(r.messageId))
+    .finally(() => console.log("finally"));
+  console.log("email sended");
 }
-

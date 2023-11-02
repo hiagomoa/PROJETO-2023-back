@@ -76,10 +76,7 @@ export class ExerciseController {
       const { name, description, dueDate, html, professorId, classId } =
         req.body;
 
-      console.log(req.body);
-
       const exerciseId = req.params.id;
-      console.log(exerciseId);
 
       await this.service.updateExercise(exerciseId, {
         name,

@@ -12,7 +12,6 @@ export class AdminService implements AdminUseCases {
     email: string,
     password: string
   ): Promise<AdminContract> {
-    console.log(name);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     return await this.repo.create(name, email, hashedPassword);

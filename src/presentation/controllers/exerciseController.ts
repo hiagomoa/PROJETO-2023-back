@@ -29,7 +29,6 @@ export class ExerciseController {
 
       return res.status(201).json({ id: exercise });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: "Erro ao criar exercício" });
     }
   }

@@ -1,4 +1,4 @@
-import { AlunosItensInOut } from "../entities/alunoItensInOut";
+import { AlunosItensInOutWIthAttempts } from "../entities/alunoItensInOut";
 import { StudentAnswer } from "../entities/studentAnswer";
 
 export interface StudentAnswerUseCases {
@@ -31,5 +31,5 @@ export interface StudentAnswerUseCases {
   getAnswerOutPut: (
     studentId: string,
     exerciseId: string
-  ) => Promise<AlunosItensInOut[]>;
+  ) => Promise<AlunosItensInOutWIthAttempts>;
 }

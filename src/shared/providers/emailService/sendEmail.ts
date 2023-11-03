@@ -49,9 +49,5 @@ export async function sendEmail({
     html: renderedTemplate,
   };
 
-  await transporter
-    .sendMail(emailOptions)
-    .then((r) => console.log(r.messageId))
-    .finally(() => console.log("finally"));
-  console.log("email sended");
+  await transporter.sendMail(emailOptions);
 }

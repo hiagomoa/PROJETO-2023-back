@@ -1,4 +1,7 @@
-import { AlunosItensInOut } from "../../domain/entities/alunoItensInOut";
+import {
+  AlunosItensInOut,
+  AlunosItensInOutWIthAttempts,
+} from "../../domain/entities/alunoItensInOut";
 import { StudentAnswerUseCases } from "../../domain/useCases/studentAnswer";
 import { StudentAnswerRepository } from "../contracts/repositories/studentAnswer";
 import { StudentAnswer } from "./../../domain/entities/studentAnswer";
@@ -38,7 +41,7 @@ export class StudentAnswerService implements StudentAnswerUseCases {
   async getAnswerOutPut(
     studentId: string,
     exerciseId: string
-  ): Promise<AlunosItensInOut[]> {
+  ): Promise<AlunosItensInOutWIthAttempts> {
     return await this.repo.getAnswerOutPut(studentId, exerciseId);
   }
 }

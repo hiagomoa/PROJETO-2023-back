@@ -7,6 +7,7 @@ import { AdminRoutes } from "./routes/administrator";
 import { AuthRoutes } from "./routes/auth";
 import { ClassRoutes } from "./routes/class";
 import { ExercisesRoutes } from "./routes/exercise";
+import { InOutsRoutes } from "./routes/inOuts";
 import { TeacherRoutes } from "./routes/professor";
 import { StudentRoutes } from "./routes/student";
 import { StudentAnswerRoutes } from "./routes/studentAnswer";
@@ -30,6 +31,7 @@ app.use("/exercise", ExercisesRoutes);
 app.use("/answer", StudentAnswerRoutes);
 app.use("/upload", upload);
 app.use("/auth", AuthRoutes);
+app.use("/inOuts", InOutsRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor Express em execução na porta ${port}`);

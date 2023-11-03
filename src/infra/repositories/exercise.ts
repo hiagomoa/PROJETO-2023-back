@@ -1,4 +1,5 @@
-import { PrismaClient, StudentAnswer } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { StudentAnswerContract } from "../../data/contracts/entities";
 import { ExerciseRepository } from "../../data/contracts/repositories/exercise";
 import { Exercise } from "../../domain/entities/exercise";
 
@@ -131,16 +132,23 @@ export class ExerciseRepo implements ExerciseRepository {
       return filter;
     }
   }
-  async getByUsers(id: string): Promise<StudentAnswer[]> {
+  async getByUsers(
+    id: string
+  ): Promise<{ data: StudentAnswerContract[]; inOuts: any[] }> {
     const db = await this.db.studentAnswer.findMany({
       where: { exerciseId: id },
       include: { student: true },
     });
 
+    const inOuts = await this.db.alunoItensInOut.findMany({
+      where: { exerciseId: id },
+      include: { StudentAnswer: true },
+    });
+
     if (!db) {
       throw new Error("Erro ao listar exercicios");
     }
-    return db;
+    return { data: db, inOuts: inOuts };
   }
   async updateExercise(id: string, exercise: Exercise): Promise<void> {
     const db = await this.db.exercise.update({

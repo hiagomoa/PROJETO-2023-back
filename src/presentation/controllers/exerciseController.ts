@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
+import { StudentAnswerContract } from "../../data/contracts/entities";
 import { Exercise } from "../../domain/entities/exercise";
-import { StudentAnswer } from "../../domain/entities/studentAnswer";
 import { ExerciseUseCases } from "../../domain/useCases/exercise";
 
 export class ExerciseController {
@@ -60,7 +60,7 @@ export class ExerciseController {
   async getByUsers(
     req: Request,
     res: Response
-  ): Promise<Response<StudentAnswer[]>> {
+  ): Promise<Response<{ data: StudentAnswerContract[]; inOuts: any[] }[]>> {
     try {
       const id = req.params.id;
 

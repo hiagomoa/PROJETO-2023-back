@@ -1,6 +1,6 @@
 import { Exercise } from "../../domain/entities/exercise";
-import { StudentAnswer } from "../../domain/entities/studentAnswer";
 import { ExerciseUseCases } from "../../domain/useCases/exercise";
+import { StudentAnswerContract } from "../contracts/entities";
 import { ExerciseRepository } from "../contracts/repositories/exercise";
 
 export class ExerciseService implements ExerciseUseCases {
@@ -26,7 +26,9 @@ export class ExerciseService implements ExerciseUseCases {
   }): Promise<Exercise[] | undefined> {
     return await this.repo.listExercises(data);
   }
-  async getByUsers(id: string): Promise<StudentAnswer[]> {
+  async getByUsers(
+    id: string
+  ): Promise<{ data: StudentAnswerContract[]; inOuts: any[] }> {
     return await this.repo.getByUsers(id);
   }
   async updateExercise(id: string, exercise: Exercise): Promise<void> {

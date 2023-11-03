@@ -10,18 +10,11 @@ export class RedisService {
       console.debug("redis is connected");
     });
   }
-  async set(key: string, value: string): Promise<any> {
-    const syncRedisSet = await promisify(this.redisClient.set).bind(
-      this.redisClient
-    );
+  async publish(key: string, value: string): Promise<any> {
+    const syncRedisSet = await this.redisClient.publish(key, value);
 
-    return syncRedisSet(key, value);
-  }
-  async get(value: string): Promise<any> {
-    const syncRedisGet = promisify(this.redisClient.get).bind(this.redisClient);
-    return await syncRedisGet(value);
-  }
-  async del(): Promise<void> {
-    await promisify(this.redisClient.del).bind(this.redisClient);
+    console.log(syncRedisSet);
+
+    return syncRedisSet;
   }
 }

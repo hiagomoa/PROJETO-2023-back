@@ -91,7 +91,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           idAluno: studentId,
         });
 
-        await queueRedis.set("STUDENT_EXERCISE_CORRECTION", dataToSend);
+        await queueRedis.publish("STUDENT_EXERCISE_CORRECTION", dataToSend);
 
         if (findOne) {
           if ((findOne.attempts || 0) > (getExercise.maxAttempts || 0)) {

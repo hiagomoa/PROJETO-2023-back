@@ -14,7 +14,6 @@ export default {
       // const SpaceWhiteRemoved = file.originalname.split(".").pop();
       // const filename = `${fileHash}-${file.originalname}`;
       const a = request.query!.name! || "";
-      console.log(a, "a");
       return callback(null, a as string);
     },
   }),

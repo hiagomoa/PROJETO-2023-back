@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { StudentAnswerRepository } from "../../data/contracts/repositories/studentAnswer";
-import { AlunosItensInOut } from "../../domain/entities/alunoItensInOut";
+import {
+  AlunosItensInOut,
+  AlunosItensInOutWIthAttempts,
+} from "../../domain/entities/alunoItensInOut";
 import { StudentAnswer } from "../../domain/entities/studentAnswer";
 
 export class StudentAnswerRepo implements StudentAnswerRepository {
@@ -79,13 +82,29 @@ export class StudentAnswerRepo implements StudentAnswerRepository {
   async getAnswerOutPut(
     studentId: string,
     exerciseId: string
-  ): Promise<AlunosItensInOut[]> {
+  ): Promise<AlunosItensInOutWIthAttempts> {
     const db = await this.db.alunoItensInOut.findMany({
       where: { studentId, exerciseId },
     });
+
+    const attempts = await this.db.studentAnswer.findFirst({
+      where: {
+        studentId,
+        exerciseId,
+      },
+      select: {
+        attempts: true,
+      },
+    });
+
     if (!db) {
       throw new Error("Resposta do estudante não encontrada");
     }
-    return db;
+
+    if (attempts) {
+      return { inOut: db, attempts: attempts.attempts };
+    }
+
+    return { inOut: db };
   }
 }

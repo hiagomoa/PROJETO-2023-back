@@ -15,7 +15,6 @@ export class AdminController {
       const service = await this.serve.create(name, email, password);
       return res.send({ data: service });
     } catch (err) {
-      console.log(err);
       return res.send({ error: "Erro ao criar administrador" });
     }
   }
@@ -29,7 +28,6 @@ export class AdminController {
 
       return res.send(svc);
     } catch (err) {
-      console.log(err);
       return res.status(404).send({ error: "Administrador não encontrado" });
     }
   }

@@ -5,3 +5,8 @@ export type AlunosItensInOut = {
   testNumber?: string | null;
   answer: string;
 };
+
+export type AlunosItensInOutWIthAttempts = {
+  inOut: AlunosItensInOut[];
+  attempts?: number | null;
+};

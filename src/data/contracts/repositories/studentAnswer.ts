@@ -1,4 +1,4 @@
-import { AlunosItensInOut } from "../../../domain/entities/alunoItensInOut";
+import { AlunosItensInOutWIthAttempts } from "../../../domain/entities/alunoItensInOut";
 import { StudentAnswer } from "../../../domain/entities/studentAnswer";
 
 export interface StudentAnswerRepository {
@@ -23,5 +23,5 @@ export interface StudentAnswerRepository {
   getAnswerOutPut: (
     studentId: string,
     exerciseId: string
-  ) => Promise<AlunosItensInOut[]>;
+  ) => Promise<AlunosItensInOutWIthAttempts>;
 }

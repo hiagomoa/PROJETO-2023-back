@@ -127,7 +127,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           },
         });
       } catch (error: any) {
-        console.log(error.message);
+        throw new Error(error);
       }
     }
   }

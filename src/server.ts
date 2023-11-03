@@ -17,8 +17,6 @@ const app = express();
 // app.use(express.json());
 const port = process.env.PORT || 3001;
 const dburl = process.env.DATABASE_URL;
-console.log(dburl);
-console.log("url", process.env.REDIS_URL);
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({ origin: "*" }));

@@ -1,5 +1,5 @@
-import { StudentAnswer } from "@prisma/client";
 import { Exercise } from "../../../domain/entities/exercise";
+import { StudentAnswerContract } from "../entities";
 
 export interface ExerciseRepository {
   // post create exercise
@@ -24,7 +24,9 @@ export interface ExerciseRepository {
     role?: string;
     classId?: string;
   }) => Promise<Exercise[] | undefined>;
-  getByUsers: (id: string) => Promise<StudentAnswer[]>;
+  getByUsers: (
+    id: string
+  ) => Promise<{ data: StudentAnswerContract[]; inOuts: any[] }>;
   updateExercise: (id: string, exercise: Exercise) => Promise<void>;
   deleteExercise: (id: string) => Promise<void>;
 }

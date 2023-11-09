@@ -1,5 +1,5 @@
+import { StudentAnswerContract } from "../../data/contracts/entities";
 import { Exercise } from "../entities/exercise";
-import { StudentAnswer } from "../entities/studentAnswer";
 
 export interface ExerciseUseCases {
   // post create exercise
@@ -24,7 +24,9 @@ export interface ExerciseUseCases {
     role?: string;
     classId?: string;
   }) => Promise<Exercise[] | undefined>;
-  getByUsers: (id: string) => Promise<StudentAnswer[]>;
+  getByUsers: (
+    id: string
+  ) => Promise<{ data: StudentAnswerContract[]; inOuts: any[] }>;
   updateExercise: (id: string, exercise: any) => Promise<void>;
   deleteExercise: (id: string) => Promise<void>;
 }

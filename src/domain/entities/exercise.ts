@@ -4,6 +4,7 @@ export type Exercise = {
   description?: string | null;
   dueDate: Date;
   html?: string | null;
+  report?: string | null;
   maxAttempts?: number | null;
   professorId: string;
   classId: string;

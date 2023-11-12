@@ -64,6 +64,7 @@ export class ExerciseRepo implements ExerciseRepository {
           StudentAnswer: true,
           updated_at: true,
           Professor: true,
+          report: true,
           class: true,
         },
         where: {

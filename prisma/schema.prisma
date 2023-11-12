@@ -76,6 +76,7 @@ model Exercise {
   description   String?
   dueDate       DateTime
   html          String?
+  report        String?
   maxAttempts   Int?
   professorId   String
   Professor     Professor       @relation(fields: [professorId], references: [id])

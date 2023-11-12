@@ -28,7 +28,7 @@ export class StudentRepo implements StudentRepository {
     });
 
     if (checkIfAlreadyExistUser) {
-      throw new Error("Já existe um Estudante com este email nesta turma!");
+      throw new Error("Já existe um Estudante com este email neste curso!");
     }
     const existingAdmin = await this.db.administrator.findFirst({
       where: {

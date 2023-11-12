@@ -16,7 +16,7 @@ export const emailTemplateFolder = resolve("public", "templates");
 
 const app = express();
 // app.use(express.json());
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3050;
 const dburl = process.env.DATABASE_URL;
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));

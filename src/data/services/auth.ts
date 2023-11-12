@@ -10,6 +10,7 @@ export class AuthService {
 
   async sign(email: string, password: string) {
     const user = await this.repo.SignIn(email, password);
+    if (!user) throw new Error("Usuário não encontrado");
     const secret = process.env.JWT_SECRET;
     const token = jwt.sign({}, secret!, {
       subject: user?.id,

@@ -50,27 +50,15 @@ export class ExerciseRepo implements ExerciseRepository {
   }): Promise<Exercise[] | undefined> {
     if (data.role === "PROFESSOR") {
       const db = await this.db.exercise.findMany({
-        select: {
-          classId: true,
-          created_at: true,
-          deleted_at: true,
-          description: true,
-          dueDate: true,
-          html: true,
-          id: true,
-          maxAttempts: true,
-          name: true,
-          professorId: true,
-          StudentAnswer: true,
-          updated_at: true,
-          Professor: true,
-          report: true,
-          class: true,
-        },
         where: {
           professorId: data.id,
           deleted_at: null,
           classId: data.classId,
+        },
+        include: {
+          class: true,
+          Professor: true,
+          StudentAnswer: true,
         },
       });
       if (db.length < 1) {

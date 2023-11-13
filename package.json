@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "start:dev": "ts-node-dev   --inspect   --transpile-only  --ignore-watch node_modules   --respawn src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsx": "tsx watch ./src/server.ts ",
-    "prod": "npx tsc"
+    "build": "npx tsc"
   },
   "keywords": [],
   "author": "",
